@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ic2021-rust
+  name: ic2021-rust
+  namespace: dev-team4218
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ic2021-rust
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ic2021-rust
+    spec:
+      containers:
+        - image: docker.pkg.github.com/2021-innovator-challenge/docker/ic2021-rust:0.0.1
+          imagePullPolicy: Always
+          name: ic2021-rust
+          resources: {}
+          env:
+            - name: DATABASE_URL
+              value: postgresql://backend-database-postgresql.dev-team4218.svc.cluster.local:5432/postgres?user=postgres&password=postgres
+      imagePullSecrets:
+        - name: dockerconfigjson-github-com
+status: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ic2021-rust
+  labels:
+    app: ic2021-rust
+    service: ic2021-rust
+  namespace: dev-team4218
+spec:
+  type: NodePort
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    app: ic2021-rust
+
+---
+apiVersion: eventing.kyma-project.io/v1alpha1
+kind: Subscription
+metadata:
+  name: rust-backend-subscription
+  namespace: dev-team4218
+spec:
+  filter:
+    filters:
+    - eventSource:
+        property: source
+        type: exact
+        value: "kyma"
+      eventType:
+        property: type
+        type: exact
+        value: "sap.kyma.custom.nonexistingapp.supportItem.created.v1"
+  protocol: ""
+  protocolsettings: {}
+  sink: http://ic2021-rust.dev-team4218.svc.cluster.local:8000/api/events/created
+
+---
+apiVersion: eventing.kyma-project.io/v1alpha1
+kind: Subscription
+metadata:
+  name: rust-backend-classified-subscription
+  namespace: dev-team4218
+spec:
+  filter:
+    filters:
+    - eventSource:
+        property: source
+        type: exact
+        value: "kyma"
+      eventType:
+        property: type
+        type: exact
+        value: "sap.kyma.custom.nonexistingapp.supportItem.classified.v1"
+  protocol: ""
+  protocolsettings: {}
+  sink: http://ic2021-rust.dev-team4218.svc.cluster.local:8000/api/events/classified

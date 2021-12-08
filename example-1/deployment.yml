@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: devexpert-example1
+  name: devexpert-example1
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devexpert-example1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: devexpert-example1
+    spec:
+      containers:
+        - image: ghcr.io/florian-richter/devexpert_example1:latest
+          imagePullPolicy: Always
+          name: devexpert-example1
+          resources: {}
+      #     env:
+      #       - name: DATABASE_URL
+      #         value: postgresql://backend-database-postgresql.dev-team4218.svc.cluster.local:5432/postgres?user=postgres&password=postgres
+      # imagePullSecrets:
+      #   - name: dockerconfigjson-github-com
+status: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devexpert-example1
+  labels:
+    app: devexpert-example1
+    service: devexpert-example1
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: devexpert-example1
+
+---
+apiVersion: gateway.kyma-project.io/v1alpha1
+kind: APIRule
+metadata:
+  name: devexpert-example1
+spec:
+  service:
+    host: devexpert-example1
+    name: devexpert-example1
+    port: 3000
+  gateway: kyma-gateway.kyma-system.svc.cluster.local
+  rules:
+    - path: /.*
+      methods: ["GET", "POST"]
+      accessStrategies:
+        - handler: noop
+      mutators:
+        - handler: noop

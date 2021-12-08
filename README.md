@@ -24,3 +24,10 @@ https://console.c-417dc51.kyma.ondemand.com/home/namespaces/default/details
 - https://sap.github.io/cloud-sdk/docs/java/environments/sap-btp-kyma-environment
 - https://sap.github.io/cloud-sdk/docs/js/guides/migrate-sdk-application-from-btp-cf-to-kubernetes
 
+## Steps
+
+- Login to docker `echo $GITHUB_TOKEN | docker login ghcr.io -u florian-richter --password-stdin`
+- Push `docker push ghcr.io/florian-richter/devexpert_example1:latest`
+- `export KUBECONFIG=$(kubeconfig.secureFilePath)`
+- `kubectl delete -f deployment.yml`
+- `kubectl apply -f deployment.yml`
