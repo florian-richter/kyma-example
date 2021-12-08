@@ -23,9 +23,12 @@ spec:
           imagePullPolicy: Always
           name: devexpert-example1
           resources: {}
-      #     env:
-      #       - name: DATABASE_URL
-      #         value: postgresql://backend-database-postgresql.dev-team4218.svc.cluster.local:5432/postgres?user=postgres&password=postgres
+          env:
+            - name: destinations
+              valueFrom:
+                secretKeyRef:
+                  name: destination-service
+                  key: secret
       # imagePullSecrets:
       #   - name: dockerconfigjson-github-com
 status: {}
